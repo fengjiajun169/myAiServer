@@ -23,7 +23,7 @@ def chat():
     # 获取请求体参数
     params = request.get_json()
     # 检查action参数
-    prompt = '梯形和正方形的区别？'
+    prompt = '解释一下梯形和正方形的区别？'
     if 'prompt' in params:
         prompt = params['prompt']
     completions = openai.Completion.create(
