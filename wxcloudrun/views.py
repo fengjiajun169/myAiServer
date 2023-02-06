@@ -36,7 +36,7 @@ def chat():
     )
     message = completions.choices[0].text
     text = message.strip()
-    return text
+    return make_succ_response(text)
 
 
 @app.route('/api/count', methods=['POST'])
