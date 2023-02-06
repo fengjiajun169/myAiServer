@@ -4,6 +4,10 @@ from run import app
 from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
 from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
+import openai
+
+openai.api_key = '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'
+model_engine = "text-davinci-003"
 
 
 @app.route('/')
@@ -12,6 +16,27 @@ def index():
     :return: 返回index页面
     """
     return render_template('index.html')
+
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    # 获取请求体参数
+    params = request.get_json()
+    # 检查action参数
+    prompt = '梯形和正方形的区别？'
+    if 'prompt' in params:
+        prompt = params['prompt']
+    completions = openai.Completion.create(
+        engine=model_engine,
+        prompt=prompt,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5
+    )
+    message = completions.choices[0].text
+    text = message.strip()
+    return text
 
 
 @app.route('/api/count', methods=['POST'])
