@@ -25,7 +25,7 @@ def chat():
     prompt = '梯形和正方形的区别？'
     if 'prompt' in params:
         prompt = params['prompt']
-    openai.api_key = prompt['api_key']
+    openai.api_key = params['api_key']
     completions = openai.Completion.create(
         engine=model_engine,
         prompt=prompt,
