@@ -6,7 +6,7 @@ from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 import openai
 
-openai.api_key = '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'
+openai.api_key = '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'
 model_engine = "text-davinci-003"
 
 
