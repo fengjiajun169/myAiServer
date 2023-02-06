@@ -6,7 +6,6 @@ from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 import openai
 
-openai.api_key = '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'
 model_engine = "text-davinci-003"
 
 
@@ -26,6 +25,7 @@ def chat():
     prompt = '梯形和正方形的区别？'
     if 'prompt' in params:
         prompt = params['prompt']
+    openai.api_key = prompt['api_key']
     completions = openai.Completion.create(
         engine=model_engine,
         prompt=prompt,
