@@ -18,7 +18,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/api/chat', methods=['POST'])
+@app.route('/api/chat', methods=['POST', 'GET'])
 def chat():
     # 获取请求体参数
     params = request.get_json()
