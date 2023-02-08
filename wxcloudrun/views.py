@@ -6,9 +6,9 @@ from wxcloudrun.model import Counters
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 import openai
 import config
+import azure.cognitiveservices.speech as speechsdk
 
 model_engine = "text-davinci-003"
-
 
 @app.route('/')
 def index():
@@ -16,6 +16,25 @@ def index():
     :return: 返回index页面
     """
     return render_template('index.html')
+
+
+@app.route('/api/text2audio', methods=['POST', 'GET'])
+def text2audio():
+    # 获取请求体参数
+    params = request.get_json()
+
+    speech_key = config.speech_key
+    service_region= config.service_region
+    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+    speech_config.speech_synthesis_voice_name = "zh-CN-YunxiNeural"
+    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+    # 检查action参数
+    text = '梯形和正方形的区别？'
+    if 'prompt' in params:
+        text = params['text']
+    openai.api_key = config.chat_api_key
+    result = speech_synthesizer.speak_text_async(text).get()
+    return make_succ_response(result)
 
 
 @app.route('/api/chat', methods=['POST', 'GET'])
