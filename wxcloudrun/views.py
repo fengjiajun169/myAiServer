@@ -97,7 +97,7 @@ def chat():
     return make_succ_response(text)
 
 
-@app.route('/api/get_chat', methods=['GET'])
+@app.route('/api/get_chat', methods=['POST', 'GET'])
 def get_chat():
     params = request.get_json()
     global_id = 1
