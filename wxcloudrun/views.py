@@ -94,7 +94,7 @@ def chat():
         chat.status = 1
         update_counterbyid(chat)
 
-    return make_succ_response(text)
+    return make_succ_response(1, text)
 
 
 @app.route('/api/get_chat', methods=['POST', 'GET'])
@@ -104,7 +104,7 @@ def get_chat():
     if 'global_id' in params:
         global_id = params['global_id']
     chat = UserChatInfo.query.filter(UserChatInfo.global_id == global_id).first()
-    return make_succ_response("查询失败") if chat is None else make_succ_response(chat.answer)
+    return make_succ_response(-1, "查询失败") if chat is None else make_succ_response(1, chat.answer)
 
 
 @app.route('/api/count', methods=['POST'])
