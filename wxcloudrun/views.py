@@ -69,7 +69,7 @@ def chat():
     chat = query_chatbyid(global_id)
     if chat is None:
         chat = UserChatInfo()
-        chat.dt = datetime.date
+        chat.dt = int(str(creat_time.date()).replace('-', ''))
         chat.user_id = user_id
         chat.global_id = global_id
         chat.creat_time = creat_time
