@@ -1,12 +1,13 @@
 from datetime import datetime
 from flask import render_template, request
 from run import app
-from wxcloudrun.dao import delete_counterbyid, query_counterbyid, insert_counter, update_counterbyid
+from wxcloudrun.dao import *
 from wxcloudrun.model import Counters
+from wxcloudrun.model import UserChatInfo
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 import openai
 import config
-import azure.cognitiveservices.speech as speechsdk
+# import azure.cognitiveservices.speech as speechsdk
 
 model_engine = "text-davinci-003"
 
@@ -18,23 +19,23 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/api/text2audio', methods=['POST', 'GET'])
-def text2audio():
-    # 获取请求体参数
-    params = request.get_json()
-
-    speech_key = config.speech_key
-    service_region= config.service_region
-    speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
-    speech_config.speech_synthesis_voice_name = "zh-CN-YunxiNeural"
-    speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
-    # 检查action参数
-    text = '梯形和正方形的区别？'
-    if 'prompt' in params:
-        text = params['text']
-    openai.api_key = config.chat_api_key
-    result = speech_synthesizer.speak_text_async(text).get()
-    return make_succ_response(result)
+# @app.route('/api/text2audio', methods=['POST', 'GET'])
+# def text2audio():
+#     # 获取请求体参数
+#     params = request.get_json()
+#
+#     speech_key = config.speech_key
+#     service_region= config.service_region
+#     speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=service_region)
+#     speech_config.speech_synthesis_voice_name = "zh-CN-YunxiNeural"
+#     speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config)
+#     # 检查action参数
+#     text = '梯形和正方形的区别？'
+#     if 'prompt' in params:
+#         text = params['text']
+#     openai.api_key = config.chat_api_key
+#     result = speech_synthesizer.speak_text_async(text).get()
+#     return make_succ_response(result)
 
 
 @app.route('/api/chat', methods=['POST', 'GET'])
@@ -43,9 +44,16 @@ def chat():
     params = request.get_json()
     # 检查action参数
     prompt = '梯形和正方形的区别？'
+    global_id = -1
+    user_id = -1
     if 'prompt' in params:
         prompt = params['prompt']
+    if 'global_id' in params:
+        global_id = params['global_id']
+    if 'user_id' in params:
+        user_id = params['user_id']
     openai.api_key = config.chat_api_key
+    creat_time = datetime.now()
     completions = openai.Completion.create(
         engine=model_engine,
         prompt=prompt,
@@ -56,6 +64,32 @@ def chat():
     )
     message = completions.choices[0].text
     text = message.strip()
+    finish_time = datetime.now()
+
+    chat = query_chatbyid(global_id)
+    if chat is None:
+        chat = UserChatInfo()
+        chat.dt = datetime.date
+        chat.user_id = user_id
+        chat.global_id = global_id
+        chat.creat_time = creat_time
+        chat.finish_time = finish_time
+        chat.duration_time = (finish_time - creat_time) / 1000
+        chat.question = prompt
+        chat.answer = text
+        insert_chat(chat)
+    else:
+        chat.dt = datetime.date
+        chat.user_id = user_id
+        chat.global_id = global_id
+        chat.creat_time = creat_time
+        chat.finish_time = finish_time
+        chat.duration_time = (finish_time - creat_time) / 1000
+        chat.question = prompt
+        chat.answer = text
+        insert_chat(chat)
+        update_counterbyid(chat)
+
     return make_succ_response(text)
 
 
