@@ -74,7 +74,7 @@ def chat():
         chat.global_id = global_id
         chat.creat_time = creat_time
         chat.finish_time = finish_time
-        chat.duration_time = (finish_time - creat_time) / 1000
+        chat.duration_time = (finish_time - creat_time).seconds
         chat.question = prompt
         chat.answer = text
         insert_chat(chat)
