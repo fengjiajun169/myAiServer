@@ -7,9 +7,11 @@ from wxcloudrun.model import UserChatInfo
 from wxcloudrun.response import make_succ_empty_response, make_succ_response, make_err_response
 import openai
 import config
+
 # import azure.cognitiveservices.speech as speechsdk
 
 model_engine = "text-davinci-003"
+
 
 @app.route('/')
 def index():
@@ -77,20 +79,32 @@ def chat():
         chat.duration_time = (finish_time - creat_time).seconds
         chat.question = prompt
         chat.answer = text
+        chat.status = 1
         insert_chat(chat)
     else:
-        chat.dt = datetime.date
+        chat.dt = int(str(creat_time.date()).replace('-', ''))
         chat.user_id = user_id
         chat.global_id = global_id
         chat.creat_time = creat_time
         chat.finish_time = finish_time
-        chat.duration_time = (finish_time - creat_time) / 1000
+        chat.duration_time = (finish_time - creat_time).seconds
         chat.question = prompt
         chat.answer = text
         insert_chat(chat)
+        chat.status = 1
         update_counterbyid(chat)
 
     return make_succ_response(text)
+
+
+@app.route('/api/get_chat', methods=['GET'])
+def get_chat():
+    params = request.get_json()
+    global_id = 1
+    if 'global_id' in params:
+        global_id = params['global_id']
+    chat = UserChatInfo.query.filter(UserChatInfo.global_id == global_id).first()
+    return make_succ_response("查询失败") if chat is None else make_succ_response(chat.text)
 
 
 @app.route('/api/count', methods=['POST'])
